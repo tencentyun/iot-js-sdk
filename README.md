@@ -8,3 +8,6 @@
 
 通过基于小程序 `wx.request` 接口的适配，来适应不同环境。
 
+## license
+
+MIT

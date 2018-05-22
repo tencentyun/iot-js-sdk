@@ -1,0 +1,25 @@
+{
+  "name": "tencent-iot-js-sdk",
+  "version": "0.1.0",
+  "description": "tencent qcloud iot js sdk",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tencentyun/iot-js-sdk.git"
+  },
+  "keywords": [
+    "iot"
+  ],
+  "author": "alsotang <alsotang@tencent.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tencentyun/iot-js-sdk/issues"
+  },
+  "homepage": "https://github.com/tencentyun/iot-js-sdk#readme"
+}
