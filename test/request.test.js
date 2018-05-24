@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Request = require('../lib/request')
+const Request = require('../src/request')
 const axios = require('axios')
 const nock = require('nock')
 

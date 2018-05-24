@@ -2,13 +2,12 @@
   "name": "tencent-iot-js-sdk",
   "version": "0.1.0",
   "description": "tencent cloud iot js sdk",
-  "main": "index.js",
+  "main": "./src/sdk.js",
+  "browser": "./dist/sdk.browser.js",
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "test": "mocha test/"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tencentyun/iot-js-sdk.git"
@@ -23,8 +22,15 @@
   },
   "homepage": "https://github.com/tencentyun/iot-js-sdk#readme",
   "devDependencies": {
-    "axios": "^0.18.0",
     "mocha": "^5.2.0",
-    "nock": "^9.2.6"
+    "nock": "^9.2.6",
+    "webpack": "^4.8.3",
+    "webpack-cli": "^2.1.4",
+    "webpack-merge": "^4.1.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "isomorphic-ws": "^4.0.1",
+    "ws": "^5.2.0"
   }
 }
