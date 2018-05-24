@@ -2,9 +2,9 @@
 
 这个 SDK 的目标是同时工作于以下环境：
 
-* 小程序。使用 `dist/iot-sdk.miniprogram.js`
+* 小程序。使用 `dist/iot_sdk.miniprogram.js`
 * Node.js。使用 `src/sdk.js`
-* 浏览器。使用 `iot-sdk.browser.js`
+* 浏览器。使用 `iot_sdk.browser.js`
 
 ## TODO
 

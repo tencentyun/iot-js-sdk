@@ -1,13 +1,14 @@
 const merge = require('webpack-merge');
 const base = require('./webpack.base.js');
+const webpack = require('webpack')
 
 module.exports = merge(base, {
-  mode: 'production',
   output: {
-    filename: 'iot-sdk.miniprogram.js',
+    filename: 'iot_sdk.miniprogram.js',
   },
   externals: {
-    axios: 'axios',
-    'isomorphic-ws': 'isomorphic-ws',
-  }
+  },
+  plugins: [
+    new webpack.IgnorePlugin(/^(axios|isomorphic-ws)$/)
+  ]
 });

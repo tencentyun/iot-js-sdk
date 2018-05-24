@@ -1,14 +1,17 @@
 const envDetect = require('./env_detect')
-const axios = require('axios');
+let axios;
+try {
+  axios = require('axios');
+} catch (e) {
+
+}
 
 
 class Request {
   constructor(options) {
     options = options || {}
 
-    if (!envDetect.isMiniProgram()) {
-      this.axios = axios;
-    }
+    this.axios = axios;
   }
 
   request(options) {

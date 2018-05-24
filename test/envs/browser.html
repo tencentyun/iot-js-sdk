@@ -1,0 +1,13 @@
+<p>hello tencent iot js sdk</p>
+
+<script src="../../dist/iot_sdk.browser.js"></script>
+
+<script>
+  const sdk = new TencentIotSdk()
+  const instance = sdk.request
+  instance.request({
+    url: 'https://api.github.com'
+  }).then((response) => {
+    console.log(response)
+  })
+</script>
