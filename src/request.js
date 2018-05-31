@@ -1,10 +1,10 @@
 const envDetect = require('./env_detect')
 let axios;
-try {
-  axios = require('axios');
-} catch (e) {
 
+if (!envDetect.isMiniProgram()) {
+  axios = require('axios');
 }
+
 
 
 class Request {
@@ -19,7 +19,7 @@ class Request {
 
     options = self.transformReuqestOptions(options)
 
-    if (!self.axios) {
+    if (envDetect.isMiniProgram()) {
       return new Promise(function (resolve, reject) {
         const wxOptions = Object.assign({}, {
           success: function (res) {

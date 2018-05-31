@@ -1,4 +1,5 @@
 const Request = require('./request')
+const MyWebSocket = require('./my_web_socket')
 
 class Sdk {
   constructor(options) {

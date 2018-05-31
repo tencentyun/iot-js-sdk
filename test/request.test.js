@@ -4,9 +4,7 @@ const axios = require('axios')
 const nock = require('nock')
 
 
-const instance = new Request({
-  axios: axios
-})
+const instance = new Request({})
 
 describe('request.test.js', function () {
   it('should get with querystring', async function () {
