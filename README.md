@@ -12,6 +12,7 @@
 * 增加同构ws实现
 * 惰性建立ws连接
 * 加上babel的支持
+* npm发布第一版
 
 ## license
 

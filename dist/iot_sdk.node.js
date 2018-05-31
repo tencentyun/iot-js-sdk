@@ -6659,30 +6659,30 @@ function socketOnError () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-exports.isMiniProgram = function () {
+exports.isMiniProgram = (function () {
   // 通过关键 api 是否存在来判断小程序环境
   try {
     return !!(wx && wx.request && wx.connectSocket);
   } catch (e) {
     return false;
   }
-}
+})();
 
-exports.isBrowser = function () {
+exports.isBrowser = (function () {
   try {
-    return typeof window !== 'undefined' && typeof window.document !== 'undefined' && !exports.isMiniProgram()
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined' && !exports.isMiniProgram
   } catch (e) {
     return false;
   }
-}
+})();
 
-exports.isNode = function () {
+exports.isNode = (function () {
   try {
     return !!process.versions.node
   } catch (e) {
     return false;
   }
-}
+})();
 
 /***/ }),
 
@@ -6697,7 +6697,7 @@ const envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js")
 
 let isomorphicWs
 
-if (!envDetect.isMiniProgram()) {
+if (!envDetect.isMiniProgram) {
   isomorphicWs = __webpack_require__(/*! isomorphic-ws */ "./node_modules/isomorphic-ws/node.js")
 }
 
@@ -6724,7 +6724,7 @@ module.exports = myWebSocket
 const envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js")
 let axios;
 
-if (!envDetect.isMiniProgram()) {
+if (!envDetect.isMiniProgram) {
   axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 }
 
@@ -6742,7 +6742,7 @@ class Request {
 
     options = self.transformReuqestOptions(options)
 
-    if (envDetect.isMiniProgram()) {
+    if (envDetect.isMiniProgram) {
       return new Promise(function (resolve, reject) {
         const wxOptions = Object.assign({}, {
           success: function (res) {

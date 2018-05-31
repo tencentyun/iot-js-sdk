@@ -2,7 +2,7 @@ const envDetect = require('./env_detect')
 
 let isomorphicWs
 
-if (!envDetect.isMiniProgram()) {
+if (!envDetect.isMiniProgram) {
   isomorphicWs = require('isomorphic-ws')
 }
 
