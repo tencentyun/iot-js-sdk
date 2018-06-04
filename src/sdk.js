@@ -6,7 +6,10 @@ class Sdk {
     options = options || {}
 
     this.request = new Request()
+    // this.ws = new MyWebSocket()
   }
 }
 
-module.exports = Sdk;
+exports = module.exports = Sdk;
+exports.Request = Request;
+exports.MyWebSocket = MyWebSocket;

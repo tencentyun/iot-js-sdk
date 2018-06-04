@@ -8,11 +8,9 @@
 
 ## TODO
 
-* env_detect 通过 Object.defineProperty 实现
-* 增加同构ws实现
-* 惰性建立ws连接
-* 加上babel的支持
-* npm发布第一版
+* [x] 增加同构ws实现
+* [ ] 加上babel的支持
+* [ ] npm发布第一版
 
 ## license
 

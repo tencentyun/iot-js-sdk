@@ -1,17 +1,25 @@
-<p>hello tencent iot js sdk</p>
+const IotSdk = require('./utils/iot-js-sdk/iot_sdk.miniprogram.js')
 
-<script src="../../dist/iot_sdk.browser.js"></script>
+//app.js
+App({
+  onLaunch: function () {
+    testIotJsSdk()
+  },
+  globalData: {
+    userInfo: null
+  }
+})
 
-<script>
-  const reqInstance = new TencentIotSdk.Request()
-  reqInstance.request({
+function testIotJsSdk() {
+  const sdk = new IotSdk()
+  const instance = sdk.request
+  instance.request({
     url: 'https://api.github.com'
   }).then((response) => {
     console.log(response)
   })
 
-
-  const MyWebSocket = TencentIotSdk.MyWebSocket
+  const MyWebSocket = IotSdk.MyWebSocket
   const ws = new MyWebSocket('wss://echo.websocket.org/');
 
   let sendData;
@@ -27,9 +35,9 @@
   };
 
   ws.onclose = function close() {
-    if (isOpen !== true) {throw ''}
-    if (isOnmessage !== true) {throw ''}
-    if (isError !== false) {throw ''}
+    if (isOpen !== true) { throw '' }
+    if (isOnmessage !== true) { throw '' }
+    if (isError !== false) { throw '' }
     console.log('closed')
   };
 
@@ -38,10 +46,9 @@
   }
 
   ws.onmessage = function incoming(event) {
-    if (sendData !== event.data) {throw ''}
+    if (sendData !== event.data) { throw '' }
     isOnmessage = true;
 
     ws.close()
   };
-
-</script>
+}
