@@ -1,6 +1,6 @@
-all: build
+all: test
 
-test:
+test: build-node
 	npx mocha test/
 
 build: clean-dist build-browser build-miniprogram build-node

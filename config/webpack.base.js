@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   devtool: 'source-map',
   entry: path.join(__dirname, '../src/sdk.js'),
   output: {
@@ -11,4 +11,17 @@ module.exports = {
   },
   plugins: [
   ],
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      }
+    ]
+  }
 };

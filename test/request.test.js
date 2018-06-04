@@ -1,5 +1,6 @@
 const assert = require('assert');
-const Request = require('../src/request')
+const Sdk = require('..')
+const Request = Sdk.Request
 const axios = require('axios')
 const nock = require('nock')
 

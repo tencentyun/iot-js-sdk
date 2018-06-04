@@ -1,5 +1,6 @@
 const assert = require('assert')
-const MyWebSocket = require('../src/my_web_socket')
+const Sdk = require('..')
+const MyWebSocket = Sdk.MyWebSocket
 
 describe('my_web_socket.test.js', function() {
   this.timeout(10 * 1000);
