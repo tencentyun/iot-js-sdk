@@ -15,28 +15,28 @@ describe('my_web_socket.test.js', function() {
     let isOnmessage = false;
     let isError = false;
 
-    ws.onopen = function open() {
+    ws.onOpen(function () {
       isOpen = true;
       sendData = String(Date.now())
       ws.send(sendData);
-    };
+    });
 
-    ws.onclose = function close() {
+    ws.onClose(function () {
       assert(isOpen === true)
       assert(isOnmessage === true)
       assert(isError === false);
       done()
-    };
+    })
 
-    ws.onerror = function (event) {
+    ws.onError(function (event) {
       isError = true;
-    }
+    })
 
-    ws.onmessage = function incoming(event) {
+    ws.onMessage(function (event) {
       assert(sendData === event.data);
       isOnmessage = true;
 
       ws.close()
-    };
+    });
   })
 })

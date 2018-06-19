@@ -8,8 +8,8 @@ if (!envDetect.isMiniProgram) {
 
 class MyWebSocket {
   constructor(url, options) {
-    this.url = url;
     this.options = options || {};
+    this.url = url;
     this.origin = this.options.origin;
 
     this.wxWs = null;
@@ -56,35 +56,35 @@ class MyWebSocket {
     }
   }
 
-  set onopen(callback) {
+  onOpen(callback) {
     if (envDetect.isMiniProgram) {
       this.wxWs.onOpen(callback)
     } else {
-      this.ws.onopen = callback
+      this.ws.addEventListener('open', callback)
     }
   }
 
-  set onclose(callback) {
+  onClose(callback) {
     if (envDetect.isMiniProgram) {
       this.wxWs.onClose(callback)
     } else {
-      this.ws.onclose = callback
+      this.ws.addEventListener('close', callback)
     }
   }
 
-  set onmessage(callback) {
+  onMessage(callback) {
     if (envDetect.isMiniProgram) {
       this.wxWs.onMessage(callback)
     } else {
-      this.ws.onmessage = callback
+      this.ws.addEventListener('message', callback)
     }
   }
 
-  set onerror(callback) {
+  onError(callback) {
     if (envDetect.isMiniProgram) {
       this.wxWs.onError(callback)
     } else {
-      this.ws.onerror = callback
+      this.ws.addEventListener('error', callback)
     }
   }
 }

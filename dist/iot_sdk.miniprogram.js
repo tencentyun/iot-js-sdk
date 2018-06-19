@@ -385,8 +385,8 @@ function () {
   function MyWebSocket(url, options) {
     _classCallCheck(this, MyWebSocket);
 
-    this.url = url;
     this.options = options || {};
+    this.url = url;
     this.origin = this.options.origin;
     this.wxWs = null;
     this.ws = null;
@@ -436,39 +436,39 @@ function () {
       }
     }
   }, {
-    key: "onopen",
-    set: function set(callback) {
+    key: "onOpen",
+    value: function onOpen(callback) {
       if (envDetect.isMiniProgram) {
         this.wxWs.onOpen(callback);
       } else {
-        this.ws.onopen = callback;
+        this.ws.addEventListener('open', callback);
       }
     }
   }, {
-    key: "onclose",
-    set: function set(callback) {
+    key: "onClose",
+    value: function onClose(callback) {
       if (envDetect.isMiniProgram) {
         this.wxWs.onClose(callback);
       } else {
-        this.ws.onclose = callback;
+        this.ws.addEventListener('close', callback);
       }
     }
   }, {
-    key: "onmessage",
-    set: function set(callback) {
+    key: "onMessage",
+    value: function onMessage(callback) {
       if (envDetect.isMiniProgram) {
         this.wxWs.onMessage(callback);
       } else {
-        this.ws.onmessage = callback;
+        this.ws.addEventListener('message', callback);
       }
     }
   }, {
-    key: "onerror",
-    set: function set(callback) {
+    key: "onError",
+    value: function onError(callback) {
       if (envDetect.isMiniProgram) {
         this.wxWs.onError(callback);
       } else {
-        this.ws.onerror = callback;
+        this.ws.addEventListener('error', callback);
       }
     }
   }]);
