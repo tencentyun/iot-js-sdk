@@ -3180,7 +3180,9 @@ function () {
 
     this.sendQueue = []; // reconnect 每个间隔只处理一次调用
 
-    this.reconnect = throttle(this._reconnect, this.reconnectInterval);
+    this.reconnect = throttle(this._reconnect, this.reconnectInterval); // 手动关闭
+
+    this.manuallyClose = false;
     this.init();
   }
 
@@ -3226,6 +3228,10 @@ function () {
         self.initHeartbeat();
       });
       self.ws.onClose(function () {
+        if (self.manuallyClose) {
+          return;
+        }
+
         self.reconnect();
       });
       self.ws.onError(function (err) {
@@ -3291,6 +3297,8 @@ function () {
     key: "close",
     value: function close() {
       debug("closing websocket");
+      clearInterval(this.heartbeatTimer);
+      this.manuallyClose = true;
       this.ws.close.apply(this.ws, arguments);
     }
   }, {

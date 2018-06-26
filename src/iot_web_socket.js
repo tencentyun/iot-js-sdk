@@ -31,6 +31,9 @@ class IotWebSocket {
     // reconnect 每个间隔只处理一次调用
     this.reconnect = throttle(this._reconnect, this.reconnectInterval);
 
+    // 手动关闭
+    this.manuallyClose = false;
+
     this.init()
   }
 
@@ -80,6 +83,9 @@ class IotWebSocket {
     })
 
     self.ws.onClose(function () {
+      if (self.manuallyClose) {
+        return;
+      }
       self.reconnect()
     })
 
@@ -141,6 +147,8 @@ class IotWebSocket {
 
   close() {
     debug(`closing websocket`);
+    clearInterval(this.heartbeatTimer);
+    this.manuallyClose = true;
     this.ws.close.apply(this.ws, arguments);
   }
 
