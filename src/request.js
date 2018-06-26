@@ -1,3 +1,7 @@
+/*
+这是一个 http 请求的同构层，同构了小程序，h5与node.js的websocket调用。
+ */
+
 const envDetect = require('./env_detect')
 let axios;
 

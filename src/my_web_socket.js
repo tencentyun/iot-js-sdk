@@ -1,3 +1,8 @@
+/*
+这是一个websocket的同构层，同构了小程序，h5与node.js的websocket调用。
+ */
+
+const debug = require('debug')('iot:my_web_socket')
 const envDetect = require('./env_detect')
 
 let isomorphicWs
@@ -15,10 +20,10 @@ class MyWebSocket {
     this.wxWs = null;
     this.ws = null;
 
-    this._initWs()
+    this.initWs()
   }
 
-  _initWs() {
+  initWs() {
     if (envDetect.isMiniProgram) {
       this.wxWs = wx.connectSocket({
         url: this.url,
@@ -89,4 +94,4 @@ class MyWebSocket {
   }
 }
 
-module.exports = MyWebSocket
+exports = module.exports = MyWebSocket

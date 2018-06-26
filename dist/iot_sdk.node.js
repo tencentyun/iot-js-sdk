@@ -133,6 +133,209 @@ exports.isNode = function () {
 
 /***/ }),
 
+/***/ "./src/iot_web_socket.js":
+/*!*******************************!*\
+  !*** ./src/iot_web_socket.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socket.js");
+
+var debug = __webpack_require__(/*! debug */ "debug")('iot:iot_web_socket');
+
+var throttle = __webpack_require__(/*! lodash.throttle */ "lodash.throttle");
+
+var IotWebSocket =
+/*#__PURE__*/
+function () {
+  function IotWebSocket(url, options) {
+    _classCallCheck(this, IotWebSocket);
+
+    this.url = url || 'ws://iot-ws.tencentcs.com/';
+    this.options = options || {}; // 心跳的间隔时间
+
+    this.hearbeatInterval = this.options.hearbeatInterval || 20 * 1000;
+    this.reconnectInterval = this.options.reconnectInterval || 1 * 1000;
+    this.ws = null;
+    this.isOpen = false; // 用来标记一个唯一的 reqId，每次使用后自增
+
+    this.reqIdCount = 0; // 记录 reqId 对应的处理函数
+
+    this.reqIdCallbacks = {}; // 记录绑定的所有函数，在重启的时候恢复
+
+    this.onOpenCallbacks = [];
+    this.onCloseCallbacks = [];
+    this.onMessageCallbacks = [];
+    this.onErrorCallbacks = []; // 保存 setInterval 的结果
+
+    this.heartbeatTimer = null; // 连接未建立前，将send调用的消息放在这里
+
+    this.sendQueue = []; // reconnect 每个间隔只处理一次调用
+
+    this.reconnect = throttle(this._reconnect, this.reconnectInterval);
+    this.init();
+  }
+
+  _createClass(IotWebSocket, [{
+    key: "init",
+    value: function init() {
+      var self = this;
+      self.ws = new MyWebSocket(self.url, self.options); // 批量注册用户设定的事件函数
+
+      [['onOpen', self.onOpenCallbacks], ['onClose', self.onCloseCallbacks], ['onMessage', self.onMessageCallbacks], ['onError', self.onErrorCallbacks]].forEach(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            eventName = _ref2[0],
+            eventCallbacks = _ref2[1];
+
+        eventCallbacks.forEach(function (cb) {
+          self.ws[eventName](cb);
+        });
+      });
+      self.ws.onMessage(function (event) {
+        var data;
+
+        try {
+          data = JSON.parse(event.data);
+        } catch (e) {
+          console.log("onMessage parse event.data error: ".concat(event.data));
+          return;
+        }
+
+        debug("on message data: %o", data);
+
+        if (data.reqId !== void 0 && self.reqIdCallbacks[data.reqId]) {
+          self.reqIdCallbacks[data.reqId](data); // 这些 reqIdCallback 都是一次性的，要及时删除防止内存泄露
+
+          delete self.reqIdCallbacks[data.reqId];
+        }
+      });
+      self.ws.onOpen(function () {
+        self.isOpen = true;
+        self.sendQueue.forEach(function (data) {
+          self.send(data);
+        });
+        self.sendQueue = [];
+        self.initHeartbeat();
+      });
+      self.ws.onClose(function () {
+        self.reconnect();
+      });
+      self.ws.onError(function (err) {
+        console.error('websocket on error', err.message);
+        self.reconnect();
+      });
+    }
+  }, {
+    key: "initHeartbeat",
+    value: function initHeartbeat() {
+      var self = this;
+      this.heartbeatTimer = setInterval(function () {
+        self.heartbeat();
+      }, self.hearbeatInterval);
+    }
+  }, {
+    key: "heartbeat",
+    value: function heartbeat() {
+      var self = this;
+      self.call('Hello');
+    }
+  }, {
+    key: "_reconnect",
+    value: function _reconnect() {
+      this.isOpen = false;
+      debug("reconnect");
+      clearInterval(this.heartbeatTimer);
+      this.init();
+    }
+  }, {
+    key: "call",
+    value: function call(action, params) {
+      debug("call action %o, params %o", action, params);
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        var reqId = self.reqIdCount++;
+        var message = JSON.stringify({
+          action: action,
+          reqId: reqId,
+          params: params
+        });
+
+        self.reqIdCallbacks[reqId] = function (response) {
+          resolve(response);
+        };
+
+        self.send(message);
+      });
+    }
+  }, {
+    key: "send",
+    value: function send(data) {
+      var self = this;
+
+      if (!self.isOpen) {
+        self.sendQueue.push(data);
+        return;
+      }
+
+      this.ws.send(data);
+    }
+  }, {
+    key: "close",
+    value: function close() {
+      debug("closing websocket");
+      this.ws.close.apply(this.ws, arguments);
+    }
+  }, {
+    key: "onOpen",
+    value: function onOpen(callback) {
+      this.onOpenCallbacks.push(callback);
+      this.ws.onOpen(callback);
+    }
+  }, {
+    key: "onClose",
+    value: function onClose(callback) {
+      this.onCloseCallbacks.push(callback);
+      this.ws.onClose(callback);
+    }
+  }, {
+    key: "onMessage",
+    value: function onMessage(callback) {
+      this.onMessageCallbacks.push(callback);
+      this.ws.onMessage(callback);
+    }
+  }, {
+    key: "onError",
+    value: function onError(callback) {
+      this.onErrorCallbacks.push(callback);
+      this.ws.onError(callback);
+    }
+  }]);
+
+  return IotWebSocket;
+}();
+
+exports = module.exports = IotWebSocket;
+
+/***/ }),
+
 /***/ "./src/my_web_socket.js":
 /*!******************************!*\
   !*** ./src/my_web_socket.js ***!
@@ -148,6 +351,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/*
+这是一个websocket的同构层，同构了小程序，h5与node.js的websocket调用。
+ */
+var debug = __webpack_require__(/*! debug */ "debug")('iot:my_web_socket');
 
 var envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js");
 
@@ -168,13 +376,12 @@ function () {
     this.origin = this.options.origin;
     this.wxWs = null;
     this.ws = null;
-
-    this._initWs();
+    this.initWs();
   }
 
   _createClass(MyWebSocket, [{
-    key: "_initWs",
-    value: function _initWs() {
+    key: "initWs",
+    value: function initWs() {
       if (envDetect.isMiniProgram) {
         this.wxWs = wx.connectSocket({
           url: this.url,
@@ -254,7 +461,7 @@ function () {
   return MyWebSocket;
 }();
 
-module.exports = MyWebSocket;
+exports = module.exports = MyWebSocket;
 
 /***/ }),
 
@@ -274,6 +481,9 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+/*
+这是一个 http 请求的同构层，同构了小程序，h5与node.js的websocket调用。
+ */
 var envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js");
 
 var axios;
@@ -373,16 +583,19 @@ var Request = __webpack_require__(/*! ./request */ "./src/request.js");
 
 var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socket.js");
 
+var IotWebSocket = __webpack_require__(/*! ./iot_web_socket */ "./src/iot_web_socket.js");
+
 var Sdk = function Sdk(options) {
   _classCallCheck(this, Sdk);
 
   options = options || {};
-  this.request = new Request(); // this.ws = new MyWebSocket()
+  this.request = new Request(); // this.ws = new IotWebSocket()
 };
 
 exports = module.exports = Sdk;
 exports.Request = Request;
 exports.MyWebSocket = MyWebSocket;
+exports.IotWebSocket = IotWebSocket;
 
 /***/ }),
 
@@ -397,6 +610,17 @@ module.exports = require("axios");
 
 /***/ }),
 
+/***/ "debug":
+/*!************************!*\
+  !*** external "debug" ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("debug");
+
+/***/ }),
+
 /***/ "isomorphic-ws":
 /*!********************************!*\
   !*** external "isomorphic-ws" ***!
@@ -405,6 +629,17 @@ module.exports = require("axios");
 /***/ (function(module, exports) {
 
 module.exports = require("isomorphic-ws");
+
+/***/ }),
+
+/***/ "lodash.throttle":
+/*!**********************************!*\
+  !*** external "lodash.throttle" ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("lodash.throttle");
 
 /***/ })
 
