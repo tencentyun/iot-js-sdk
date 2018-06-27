@@ -6,8 +6,22 @@ class Sdk {
   constructor(options) {
     options = options || {}
 
+    this.app_key = options.app_key;
+
     this.request = new Request()
-    // this.ws = new IotWebSocket()
+    this.ws = new IotWebSocket()
+  }
+
+  async callYunApi(options) {
+    const self = this;
+
+    const response = await self.ws.call('YunApi', {
+      AppKey: self.app_key,
+      Action: options.Action,
+      ActionParams: options.ActionParams
+    })
+
+    return response.data.Response
   }
 }
 
