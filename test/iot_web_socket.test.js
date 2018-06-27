@@ -1,8 +1,10 @@
 const assert = require('assert')
 const Sdk = require('..')
 const IotWebSocket = Sdk.IotWebSocket
+const delay = require('delay')
 
 describe('iot_web_socket.test.js', function () {
+  this.timeout(10 * 1000);
   it('should work with ws://iot-ws.tencentcs.com/', async function () {
     const iotWebSocket = new IotWebSocket('ws://iot-ws.tencentcs.com/', {
       hearbeatInterval: 2 * 1000,
@@ -27,8 +29,10 @@ describe('iot_web_socket.test.js', function () {
 
     iotWebSocket.close()
 
-    assert(!isOpenCallback);
-    assert(!isCloseCallback);
-    console.log('%j', response)
+    await delay(1 * 1000);
+
+    assert(isOpenCallback);
+    assert(isCloseCallback);
+    assert(response.data.Response.Error);
   })
 })
