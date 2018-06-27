@@ -587,18 +587,44 @@ module.exports = Request;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 var Request = __webpack_require__(/*! ./request */ "./src/request.js");
 
 var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socket.js");
 
 var IotWebSocket = __webpack_require__(/*! ./iot_web_socket */ "./src/iot_web_socket.js");
 
-var Sdk = function Sdk(options) {
-  _classCallCheck(this, Sdk);
+var Sdk =
+/*#__PURE__*/
+function () {
+  function Sdk(options) {
+    _classCallCheck(this, Sdk);
 
-  options = options || {};
-  this.request = new Request(); // this.ws = new IotWebSocket()
-};
+    options = options || {};
+    this.app_key = options.app_key;
+    this.request = new Request();
+    this.ws = new IotWebSocket();
+  }
+
+  _createClass(Sdk, [{
+    key: "callYunApi",
+    value: function callYunApi(options) {
+      var self = this;
+      return self.ws.call('YunApi', {
+        AppKey: self.app_key,
+        Action: options.Action,
+        ActionParams: options.ActionParams
+      }).then(function (response) {
+        return response.data.Response;
+      });
+    }
+  }]);
+
+  return Sdk;
+}();
 
 exports = module.exports = Sdk;
 exports.Request = Request;

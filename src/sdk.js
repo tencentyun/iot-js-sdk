@@ -12,16 +12,16 @@ class Sdk {
     this.ws = new IotWebSocket()
   }
 
-  async callYunApi(options) {
+  callYunApi(options) {
     const self = this;
 
-    const response = await self.ws.call('YunApi', {
+    return self.ws.call('YunApi', {
       AppKey: self.app_key,
       Action: options.Action,
       ActionParams: options.ActionParams
+    }).then(function (response) {
+      return response.data.Response
     })
-
-    return response.data.Response
   }
 }
 
