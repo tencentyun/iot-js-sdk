@@ -145,10 +145,12 @@ class IotWebSocket {
     this.ws.send(data);
   }
 
-  close() {
+  close(reconnect) {
     debug(`closing websocket`);
     clearInterval(this.heartbeatTimer);
-    this.manuallyClose = true;
+    if (!reconnect) {
+      this.manuallyClose = true;
+    }
     this.ws.close.apply(this.ws, arguments);
   }
 
