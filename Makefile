@@ -14,8 +14,8 @@ build-miniprogram:
 build-node:
 	npx webpack --config config/webpack.node.js
 
-publish: build
-	npm publish
+publish:
+	git push && npm publish
 
 clean-dist:
 	rm -rf dist/
