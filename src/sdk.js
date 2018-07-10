@@ -23,6 +23,18 @@ class Sdk {
       return response.data.Response
     })
   }
+
+  call() {
+    return this.ws.call.apply(this.ws, arguments);
+  }
+
+  /*
+  fn(dataObj);
+   */
+  onPush(fn) {
+    const self = this;
+    self.ws.on('push', fn);
+  }
 }
 
 exports = module.exports = Sdk;

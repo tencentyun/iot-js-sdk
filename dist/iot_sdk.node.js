@@ -143,6 +143,8 @@ exports.isNode = function () {
 "use strict";
 
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -157,6 +159,18 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var EventEmitter = __webpack_require__(/*! events */ "events");
+
 var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socket.js");
 
 var debug = __webpack_require__(/*! debug */ "debug")('iot:iot_web_socket');
@@ -165,35 +179,43 @@ var throttle = __webpack_require__(/*! lodash.throttle */ "lodash.throttle");
 
 var IotWebSocket =
 /*#__PURE__*/
-function () {
+function (_EventEmitter) {
+  _inherits(IotWebSocket, _EventEmitter);
+
   function IotWebSocket(url, options) {
+    var _this;
+
     _classCallCheck(this, IotWebSocket);
 
-    this.url = url || 'ws://iot-ws.tencentcs.com/';
-    this.options = options || {}; // 心跳的间隔时间
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(IotWebSocket).call(this));
+    _this.url = url || 'ws://iot-ws.tencentcs.com/';
+    _this.options = options || {}; // 心跳的间隔时间
 
-    this.hearbeatInterval = this.options.hearbeatInterval || 20 * 1000;
-    this.reconnectInterval = this.options.reconnectInterval || 1 * 1000;
-    this.ws = null;
-    this.isOpen = false; // 用来标记一个唯一的 reqId，每次使用后自增
+    _this.hearbeatInterval = _this.options.hearbeatInterval || 20 * 1000;
+    _this.reconnectInterval = _this.options.reconnectInterval || 1 * 1000;
+    _this.ws = null;
+    _this.isOpen = false; // 用来标记一个唯一的 reqId，每次使用后自增
 
-    this.reqIdCount = 0; // 记录 reqId 对应的处理函数
+    _this.reqIdCount = 0; // 记录 reqId 对应的处理函数
 
-    this.reqIdCallbacks = {}; // 记录绑定的所有函数，在重启的时候恢复
+    _this.reqIdCallbacks = {}; // 记录绑定的所有函数，在重启的时候恢复
 
-    this.onOpenCallbacks = [];
-    this.onCloseCallbacks = [];
-    this.onMessageCallbacks = [];
-    this.onErrorCallbacks = []; // 保存 setInterval 的结果
+    _this.onOpenCallbacks = [];
+    _this.onCloseCallbacks = [];
+    _this.onMessageCallbacks = [];
+    _this.onErrorCallbacks = []; // 保存 setInterval 的结果
 
-    this.heartbeatTimer = null; // 连接未建立前，将send调用的消息放在这里
+    _this.heartbeatTimer = null; // 连接未建立前，将send调用的消息放在这里
 
-    this.sendQueue = []; // reconnect 每个间隔只处理一次调用
+    _this.sendQueue = []; // reconnect 每个间隔只处理一次调用
 
-    this.reconnect = throttle(this._reconnect, this.reconnectInterval); // 手动关闭
+    _this.reconnect = throttle(_this._reconnect, _this.reconnectInterval); // 手动关闭
 
-    this.manuallyClose = false;
-    this.init();
+    _this.manuallyClose = false;
+
+    _this.init();
+
+    return _this;
   }
 
   _createClass(IotWebSocket, [{
@@ -223,7 +245,9 @@ function () {
 
         debug("on message data: %o", data);
 
-        if (data.reqId !== void 0 && self.reqIdCallbacks[data.reqId]) {
+        if (data.push) {
+          self.emit('push', data);
+        } else if (data.reqId !== void 0 && self.reqIdCallbacks[data.reqId]) {
           self.reqIdCallbacks[data.reqId](data); // 这些 reqIdCallback 都是一次性的，要及时删除防止内存泄露
 
           delete self.reqIdCallbacks[data.reqId];
@@ -305,10 +329,14 @@ function () {
     }
   }, {
     key: "close",
-    value: function close() {
+    value: function close(reconnect) {
       debug("closing websocket");
       clearInterval(this.heartbeatTimer);
-      this.manuallyClose = true;
+
+      if (!reconnect) {
+        this.manuallyClose = true;
+      }
+
       this.ws.close.apply(this.ws, arguments);
     }
   }, {
@@ -338,7 +366,7 @@ function () {
   }]);
 
   return IotWebSocket;
-}();
+}(EventEmitter);
 
 exports = module.exports = IotWebSocket;
 
@@ -621,6 +649,21 @@ function () {
         return response.data.Response;
       });
     }
+  }, {
+    key: "call",
+    value: function call() {
+      return this.ws.call.apply(this.ws, arguments);
+    }
+    /*
+    fn(dataObj);
+     */
+
+  }, {
+    key: "onPush",
+    value: function onPush(fn) {
+      var self = this;
+      self.ws.on('push', fn);
+    }
   }]);
 
   return Sdk;
@@ -652,6 +695,17 @@ module.exports = require("axios");
 /***/ (function(module, exports) {
 
 module.exports = require("debug");
+
+/***/ }),
+
+/***/ "events":
+/*!*************************!*\
+  !*** external "events" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("events");
 
 /***/ }),
 

@@ -1,9 +1,12 @@
+const EventEmitter = require('events');
 const MyWebSocket = require('./my_web_socket')
 const debug = require('debug')('iot:iot_web_socket')
 const throttle = require('lodash.throttle')
 
-class IotWebSocket {
+class IotWebSocket extends EventEmitter {
   constructor(url, options) {
+    super();
+
     this.url = url || 'ws://iot-ws.tencentcs.com/'
     this.options = options || {}
     // 心跳的间隔时间
@@ -65,7 +68,9 @@ class IotWebSocket {
       }
       debug(`on message data: %o`, data);
 
-      if (data.reqId !== void 0 && self.reqIdCallbacks[data.reqId]) {
+      if (data.push) {
+        self.emit('push', data);
+      } else if (data.reqId !== void 0 && self.reqIdCallbacks[data.reqId]) {
         self.reqIdCallbacks[data.reqId](data);
         // 这些 reqIdCallback 都是一次性的，要及时删除防止内存泄露
         delete self.reqIdCallbacks[data.reqId];
