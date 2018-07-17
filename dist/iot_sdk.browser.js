@@ -3872,6 +3872,8 @@ module.exports = Request;
 "use strict";
 
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -3891,7 +3893,13 @@ function () {
     _classCallCheck(this, Sdk);
 
     options = options || {};
-    this.app_key = options.app_key;
+
+    if (!options.AppKey) {
+      throw new Error('must provide `AppKey`');
+    }
+
+    this.AppKey = options.AppKey;
+    this.AccessToken = null;
     this.request = new Request();
     this.ws = new IotWebSocket();
   }
@@ -3900,12 +3908,31 @@ function () {
     key: "callYunApi",
     value: function callYunApi(options) {
       var self = this;
+      var ActionParams = flattenArray(options.ActionParams);
+
+      if (!ActionParams.AccessToken && self.AccessToken) {
+        ActionParams.AccessToken = self.AccessToken;
+      }
+
       return self.ws.call('YunApi', {
-        AppKey: self.app_key,
+        AppKey: self.AppKey,
         Action: options.Action,
-        ActionParams: options.ActionParams
+        ActionParams: ActionParams
       }).then(function (response) {
         return response.data.Response;
+      });
+    }
+  }, {
+    key: "login",
+    value: function login(options) {
+      var self = this;
+      self.AccessToken = options.AccessToken;
+      return new Promise(function (resolve, reject) {
+        resolve({
+          error: '',
+          error_message: '',
+          data: true
+        });
       });
     }
   }, {
@@ -3932,6 +3959,23 @@ exports = module.exports = Sdk;
 exports.Request = Request;
 exports.MyWebSocket = MyWebSocket;
 exports.IotWebSocket = IotWebSocket;
+
+function flattenArray(input) {
+  var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  var output = {};
+
+  for (var key in input) {
+    var value = input[key];
+
+    if (_typeof(value) === 'object') {
+      Object.assign(output, flattenArray(value, "".concat(prefix).concat(key, ".")));
+    } else {
+      output["".concat(prefix).concat(key)] = value;
+    }
+  }
+
+  return output;
+}
 
 /***/ })
 

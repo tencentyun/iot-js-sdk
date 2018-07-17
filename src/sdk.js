@@ -6,7 +6,12 @@ class Sdk {
   constructor(options) {
     options = options || {}
 
-    this.app_key = options.app_key;
+    if (!options.AppKey) {
+      throw new Error('must provide `AppKey`')
+    }
+
+    this.AppKey = options.AppKey;
+    this.AccessToken = null
 
     this.request = new Request()
     this.ws = new IotWebSocket()
@@ -15,12 +20,30 @@ class Sdk {
   callYunApi(options) {
     const self = this;
 
+    const ActionParams = flattenArray(options.ActionParams)
+
+    if (!ActionParams.AccessToken && self.AccessToken) {
+      ActionParams.AccessToken = self.AccessToken
+    }
+
     return self.ws.call('YunApi', {
-      AppKey: self.app_key,
+      AppKey: self.AppKey,
       Action: options.Action,
-      ActionParams: options.ActionParams
+      ActionParams: ActionParams
     }).then(function (response) {
       return response.data.Response
+    })
+  }
+
+  login(options) {
+    const self = this;
+    self.AccessToken = options.AccessToken;
+    return new Promise(function (resolve, reject) {
+      resolve({
+        error: '',
+        error_message: '',
+        data: true,
+      })
     })
   }
 
@@ -41,3 +64,18 @@ exports = module.exports = Sdk;
 exports.Request = Request;
 exports.MyWebSocket = MyWebSocket;
 exports.IotWebSocket = IotWebSocket;
+
+function flattenArray(input, prefix = '') {
+  let output = {}
+
+  for (const key in input) {
+    const value = input[key]
+    if (typeof value === 'object') {
+      Object.assign(output, flattenArray(value, `${prefix}${key}.`))
+    } else {
+      output[`${prefix}${key}`] = value;
+    }
+  }
+
+  return output
+}

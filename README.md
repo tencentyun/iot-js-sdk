@@ -19,8 +19,8 @@ const SDK = require('tencent-iot-js-sdk')
 
 async function main() {
   const sdk = new SDK({
-    // 从控制台申请一个应用，会得到 app_key
-    app_key: 'xxxxxxx',
+    // 从控制台申请一个应用，会得到 AppKey
+    AppKey: 'xxxxxxx',
   });
 
   // 接收服务器的推送
@@ -52,11 +52,11 @@ main()
 
 ### constructor
 
-`app_key`：每个app都有对应的app_key，在控制台可以看到。一个app只能操作它有权限的产品，不能跨产品操作。
+`AppKey`：每个app都有对应的 AppKey，在控制台的应用管理中的 secretId 就是 AppKey。一个app只能操作它有权限的产品，不能跨产品操作。
 
 ```js
 new SDK({
-  app_key: 'xxxx'
+  AppKey: 'xxxx'
 })
 ```
 
