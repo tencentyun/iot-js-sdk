@@ -133,6 +133,62 @@ exports.isNode = function () {
 
 /***/ }),
 
+/***/ "./src/helper.js":
+/*!***********************!*\
+  !*** ./src/helper.js ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.throttle = function (func, wait, options) {
+  var timeout, context, args, result;
+  var previous = 0;
+  if (!options) options = {};
+
+  var later = function later() {
+    previous = options.leading === false ? 0 : Date.now();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+
+  var throttled = function throttled() {
+    var now = Date.now();
+    if (!previous && options.leading === false) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+
+      previous = now;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    } else if (!timeout && options.trailing !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+
+    return result;
+  };
+
+  throttled.cancel = function () {
+    clearTimeout(timeout);
+    previous = 0;
+    timeout = context = args = null;
+  };
+
+  return throttled;
+};
+
+/***/ }),
+
 /***/ "./src/iot_web_socket.js":
 /*!*******************************!*\
   !*** ./src/iot_web_socket.js ***!
@@ -175,7 +231,7 @@ var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socke
 
 var debug = __webpack_require__(/*! debug */ "debug")('iot:iot_web_socket');
 
-var throttle = __webpack_require__(/*! lodash.throttle */ "lodash.throttle");
+var helper = __webpack_require__(/*! ./helper */ "./src/helper.js");
 
 var IotWebSocket =
 /*#__PURE__*/
@@ -209,7 +265,7 @@ function (_EventEmitter) {
 
     _this.sendQueue = []; // reconnect 每个间隔只处理一次调用
 
-    _this.reconnect = throttle(_this._reconnect, _this.reconnectInterval); // 手动关闭
+    _this.reconnect = helper.throttle(_this._reconnect, _this.reconnectInterval); // 手动关闭
 
     _this.manuallyClose = false;
 
@@ -627,6 +683,8 @@ var MyWebSocket = __webpack_require__(/*! ./my_web_socket */ "./src/my_web_socke
 
 var IotWebSocket = __webpack_require__(/*! ./iot_web_socket */ "./src/iot_web_socket.js");
 
+var debug = __webpack_require__(/*! debug */ "debug")('iot:sdk');
+
 var Sdk =
 /*#__PURE__*/
 function () {
@@ -640,16 +698,30 @@ function () {
     }
 
     this.AppKey = options.AppKey;
-    this.AccessToken = null;
+    this.AccessToken = options.AccessToken;
     this.request = new Request();
     this.ws = new IotWebSocket();
+    this.init();
   }
 
   _createClass(Sdk, [{
+    key: "init",
+    value: function init() {
+      var self = this;
+      self.ws.onOpen(function () {
+        self.activePush().catch(function (err) {
+          debug("onOpen activePush ".concat(err));
+        });
+      });
+    }
+  }, {
     key: "callYunApi",
     value: function callYunApi(options) {
       var self = this;
+      var Action = options.Action;
       var ActionParams = flattenArray(options.ActionParams);
+      var Version = options.Version;
+      var Region = options.Region; // AccessToken 的默认值逻辑
 
       if (!ActionParams.AccessToken && self.AccessToken) {
         ActionParams.AccessToken = self.AccessToken;
@@ -657,24 +729,37 @@ function () {
 
       return self.ws.call('YunApi', {
         AppKey: self.AppKey,
-        Action: options.Action,
+        Action: Action,
+        Version: Version,
+        Region: Region,
         ActionParams: ActionParams
       }).then(function (response) {
         return response.data.Response;
       });
     }
   }, {
-    key: "login",
-    value: function login(options) {
+    key: "bindAccessToken",
+    value: function bindAccessToken(AccessToken) {
       var self = this;
-      self.AccessToken = options.AccessToken;
-      return new Promise(function (resolve, reject) {
-        resolve({
-          error: '',
-          error_message: '',
-          data: true
-        });
+      self.AccessToken = AccessToken;
+      self.activePush().catch(function (err) {
+        debug("activePush activePush ".concat(err));
       });
+    } // activePush是个幂等操作，多次调用也没事。
+
+  }, {
+    key: "activePush",
+    value: function activePush() {
+      var self = this;
+
+      if (self.AppKey && self.AccessToken) {
+        return self.ws.call('ActivePush', {
+          AppKey: self.AppKey,
+          AccessToken: self.AccessToken
+        });
+      }
+
+      return Promise.reject(new Error('Please ensure `AppKey` and `AccessToken` exist'));
     }
   }, {
     key: "call",
@@ -761,17 +846,6 @@ module.exports = require("events");
 /***/ (function(module, exports) {
 
 module.exports = require("isomorphic-ws");
-
-/***/ }),
-
-/***/ "lodash.throttle":
-/*!**********************************!*\
-  !*** external "lodash.throttle" ***!
-  \**********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = require("lodash.throttle");
 
 /***/ })
 

@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 const MyWebSocket = require('./my_web_socket')
 const debug = require('debug')('iot:iot_web_socket')
-const throttle = require('lodash.throttle')
+const helper = require('./helper')
 
 class IotWebSocket extends EventEmitter {
   constructor(url, options) {
@@ -32,7 +32,7 @@ class IotWebSocket extends EventEmitter {
     this.sendQueue = []
 
     // reconnect 每个间隔只处理一次调用
-    this.reconnect = throttle(this._reconnect, this.reconnectInterval);
+    this.reconnect = helper.throttle(this._reconnect, this.reconnectInterval);
 
     // 手动关闭
     this.manuallyClose = false;

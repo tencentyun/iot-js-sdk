@@ -1,6 +1,6 @@
 {
   "name": "tencent-iot-js-sdk",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "tencent cloud iot js sdk",
   "main": "./dist/iot_sdk.node.js",
   "browser": "./dist/iot_sdk.browser.js",
@@ -30,12 +30,12 @@
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.5",
     "webpack-merge": "^4.1.2",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "delay": "^3.0.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "debug": "^3.1.0",
-    "delay": "^3.0.0",
     "isomorphic-ws": "^4.0.1",
     "lodash.throttle": "^4.1.1",
     "ws": "^5.2.0"
