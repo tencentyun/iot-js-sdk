@@ -7,7 +7,7 @@ class IotWebSocket extends EventEmitter {
   constructor(url, options) {
     super();
 
-    this.url = url || 'ws://iot-ws.tencentcs.com/'
+    this.url = url || 'wss://iot-ws.tencentcs.com/'
     this.options = options || {}
     // 心跳的间隔时间
     this.hearbeatInterval = this.options.hearbeatInterval || 20 * 1000
