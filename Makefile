@@ -1,7 +1,7 @@
 all: test
 
-test: build-node
-	npx mocha test/
+test:
+	npx mocha --require intelli-espower-loader test/
 
 build: clean-dist build-browser build-miniprogram build-node
 

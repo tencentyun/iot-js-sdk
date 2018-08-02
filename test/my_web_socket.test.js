@@ -1,14 +1,25 @@
+const { spawn } = require('child_process');
 const assert = require('assert')
+const delay = require('delay')
+const pathLib = require('path')
 const Sdk = require('..')
 const MyWebSocket = Sdk.MyWebSocket
 
-describe.skip('my_web_socket.test.js', function() {
+
+let websocketServerProcess;
+describe('my_web_socket.test.js', function() {
+  before(async function () {
+    websocketServerProcess = spawn('node', [pathLib.join(__dirname, './server/simple_ws_server.js')])
+    await delay(1000)
+  })
+  after(function () {
+    websocketServerProcess.kill()
+  })
+
   this.timeout(10 * 1000);
 
   it('echo.websocket.org test', (done) => {
-    const ws = new MyWebSocket('wss://echo.websocket.org/', {
-      origin: 'https://websocket.org'
-    });
+    const ws = new MyWebSocket('ws://127.0.0.1:8080/');
 
     let sendData;
     let isOpen = false;
