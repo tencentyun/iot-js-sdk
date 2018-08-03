@@ -39,7 +39,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "debug": "^3.1.0",
-    "isomorphic-ws": "^4.0.1",
-    "lodash.throttle": "^4.1.1"
+    "isomorphic-ws": "^4.0.1"
   }
 }
