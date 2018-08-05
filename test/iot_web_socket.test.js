@@ -77,13 +77,15 @@ describe('iot_web_socket.test.js', function () {
 
 
     await delay(200);
+    // 第一次关闭server
     await killServer()
     await delay(200)
     assert(isOpenCallback);
     assert(isCloseCallback);
 
-    // 这里异步启动server，才能准确测试iotWebsocket的重连功能
+    // 再次启动server。这里使用异步启动，才能准确测试iotWebsocket的重连功能
     startServer()
+    // server未启动之前，调用YunApi方法，等到重连成功时，await才会返回
     const response = await iotWebSocket.call('YunApi', {
       AppKey: 'AKIDomu564hU6ku2FOvH5pdMLYp5BKSVeEwX',
       Action: 'AppGetUser',
