@@ -94,6 +94,10 @@ exports.Request = Request;
 exports.MyWebSocket = MyWebSocket;
 exports.IotWebSocket = IotWebSocket;
 
+/*
+腾讯云云api专用的一个参数转换方法
+用于将 {a: [1, 2, 3]} 转成 { 'a.0': 1, 'a.1': 2, 'a.2': 3 }
+ */
 function flattenArray(input, prefix = '') {
   let output = {}
 
