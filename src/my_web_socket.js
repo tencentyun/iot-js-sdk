@@ -5,10 +5,10 @@
 const debug = require('debug')('iot:my_web_socket')
 const envDetect = require('./env_detect')
 
-let isomorphicWs
+let wsLib
 
-if (!envDetect.isMiniProgram) {
-  isomorphicWs = require('isomorphic-ws')
+if (envDetect.isNode) {
+  wsLib = require('ws')
 }
 
 class MyWebSocket {
@@ -32,11 +32,11 @@ class MyWebSocket {
         }
       })
     } else if (envDetect.isNode) {
-      this.ws = new isomorphicWs(this.url, {
+      this.ws = new wsLib(this.url, {
         origin: this.origin,
       });
-    } else if (envDetect.isBrowser) {
-      this.ws = new isomorphicWs(this.url);
+    } else if (envDetect.isBrowser || envDetect.isRN) {
+      this.ws = new WebSocket(this.url);
     }
   }
 

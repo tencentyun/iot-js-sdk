@@ -2425,36 +2425,6 @@ function isSlowBuffer(obj) {
 
 /***/ }),
 
-/***/ "./node_modules/isomorphic-ws/browser.js":
-/*!***********************************************!*\
-  !*** ./node_modules/isomorphic-ws/browser.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-// https://github.com/maxogden/websocket-stream/blob/48dc3ddf943e5ada668c31ccd94e9186f02fafbd/ws-fallback.js
-var ws = null;
-
-if (typeof WebSocket !== 'undefined') {
-  ws = WebSocket;
-} else if (typeof MozWebSocket !== 'undefined') {
-  ws = MozWebSocket;
-} else if (typeof global !== 'undefined') {
-  ws = global.WebSocket || global.MozWebSocket;
-} else if (typeof window !== 'undefined') {
-  ws = window.WebSocket || window.MozWebSocket;
-} else if (typeof self !== 'undefined') {
-  ws = self.WebSocket || self.MozWebSocket;
-}
-
-module.exports = ws;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
-
-/***/ }),
-
 /***/ "./node_modules/ms/index.js":
 /*!**********************************!*\
   !*** ./node_modules/ms/index.js ***!
@@ -2852,39 +2822,6 @@ process.umask = function () {
 
 /***/ }),
 
-/***/ "./node_modules/webpack/buildin/global.js":
-/*!***********************************!*\
-  !*** (webpack)/buildin/global.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-var g; // This works in non-strict mode
-
-g = function () {
-  return this;
-}();
-
-try {
-  // This works if eval is allowed (see CSP)
-  g = g || Function("return this")() || (1, eval)("this");
-} catch (e) {
-  // This works if the window reference is available
-  if ((typeof window === "undefined" ? "undefined" : _typeof(window)) === "object") g = window;
-} // g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-
-module.exports = g;
-
-/***/ }),
-
 /***/ "./src/env_detect.js":
 /*!***************************!*\
   !*** ./src/env_detect.js ***!
@@ -2906,7 +2843,7 @@ exports.isMiniProgram = function () {
 
 exports.isBrowser = function () {
   try {
-    return typeof window !== 'undefined' && typeof window.document !== 'undefined' && !exports.isMiniProgram;
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined';
   } catch (e) {
     return false;
   }
@@ -2915,6 +2852,14 @@ exports.isBrowser = function () {
 exports.isNode = function () {
   try {
     return !!process.versions.node;
+  } catch (e) {
+    return false;
+  }
+}();
+
+exports.isRN = function () {
+  try {
+    return navigator.product === 'ReactNative';
   } catch (e) {
     return false;
   }
@@ -3241,10 +3186,10 @@ var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.j
 
 var envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js");
 
-var isomorphicWs;
+var wsLib;
 
-if (!envDetect.isMiniProgram) {
-  isomorphicWs = __webpack_require__(/*! isomorphic-ws */ "./node_modules/isomorphic-ws/browser.js");
+if (envDetect.isNode) {
+  wsLib = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'ws'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 }
 
 var MyWebSocket =
@@ -3272,11 +3217,11 @@ function () {
           }
         });
       } else if (envDetect.isNode) {
-        this.ws = new isomorphicWs(this.url, {
+        this.ws = new wsLib(this.url, {
           origin: this.origin
         });
-      } else if (envDetect.isBrowser) {
-        this.ws = new isomorphicWs(this.url);
+      } else if (envDetect.isBrowser || envDetect.isRN) {
+        this.ws = new WebSocket(this.url);
       }
     }
   }, {

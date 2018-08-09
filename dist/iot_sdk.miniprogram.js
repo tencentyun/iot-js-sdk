@@ -1194,7 +1194,7 @@ exports.isMiniProgram = function () {
 
 exports.isBrowser = function () {
   try {
-    return typeof window !== 'undefined' && typeof window.document !== 'undefined' && !exports.isMiniProgram;
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined';
   } catch (e) {
     return false;
   }
@@ -1203,6 +1203,14 @@ exports.isBrowser = function () {
 exports.isNode = function () {
   try {
     return !!process.versions.node;
+  } catch (e) {
+    return false;
+  }
+}();
+
+exports.isRN = function () {
+  try {
+    return navigator.product === 'ReactNative';
   } catch (e) {
     return false;
   }
@@ -1529,10 +1537,10 @@ var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.j
 
 var envDetect = __webpack_require__(/*! ./env_detect */ "./src/env_detect.js");
 
-var isomorphicWs;
+var wsLib;
 
-if (!envDetect.isMiniProgram) {
-  isomorphicWs = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'isomorphic-ws'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+if (envDetect.isNode) {
+  wsLib = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'ws'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 }
 
 var MyWebSocket =
@@ -1560,11 +1568,11 @@ function () {
           }
         });
       } else if (envDetect.isNode) {
-        this.ws = new isomorphicWs(this.url, {
+        this.ws = new wsLib(this.url, {
           origin: this.origin
         });
-      } else if (envDetect.isBrowser) {
-        this.ws = new isomorphicWs(this.url);
+      } else if (envDetect.isBrowser || envDetect.isRN) {
+        this.ws = new WebSocket(this.url);
       }
     }
   }, {

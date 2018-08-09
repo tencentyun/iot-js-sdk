@@ -9,6 +9,6 @@ module.exports = merge(base, {
   externals: {
   },
   plugins: [
-    new webpack.IgnorePlugin(/^(axios|isomorphic-ws)$/)
+    new webpack.IgnorePlugin(/^(axios|ws)$/)
   ]
 });

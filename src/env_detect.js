@@ -9,7 +9,7 @@ exports.isMiniProgram = (function () {
 
 exports.isBrowser = (function () {
   try {
-    return typeof window !== 'undefined' && typeof window.document !== 'undefined' && !exports.isMiniProgram
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined'
   } catch (e) {
     return false;
   }
@@ -18,6 +18,14 @@ exports.isBrowser = (function () {
 exports.isNode = (function () {
   try {
     return !!process.versions.node
+  } catch (e) {
+    return false;
+  }
+})();
+
+exports.isRN = (function () {
+  try {
+    return navigator.product === 'ReactNative'
   } catch (e) {
     return false;
   }

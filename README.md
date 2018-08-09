@@ -4,7 +4,7 @@
 
 * 小程序。使用 `dist/iot_sdk.miniprogram.js`
 * Node.js。直接 require 此包
-* 浏览器。使用 `dist/iot_sdk.browser.js`
+* 浏览器 or React Native。使用 `dist/iot_sdk.browser.js`
 
 ## 安装
 
