@@ -3456,9 +3456,10 @@ function () {
       var Action = options.Action;
       var ActionParams = flattenArray(options.ActionParams);
       var Version = options.Version;
-      var Region = options.Region; // AccessToken 的默认值逻辑
+      var Region = options.Region;
+      var WithAccessToken = options.WithAccessToken === void 0 ? true : options.WithAccessToken; // AccessToken 的默认值逻辑
 
-      if (!ActionParams.AccessToken && self.AccessToken) {
+      if (!ActionParams.AccessToken && self.AccessToken && WithAccessToken) {
         ActionParams.AccessToken = self.AccessToken;
       }
 
@@ -3520,6 +3521,10 @@ exports = module.exports = Sdk;
 exports.Request = Request;
 exports.MyWebSocket = MyWebSocket;
 exports.IotWebSocket = IotWebSocket;
+/*
+腾讯云云api专用的一个参数转换方法
+用于将 {a: [1, 2, 3]} 转成 { 'a.0': 1, 'a.1': 2, 'a.2': 3 }
+ */
 
 function flattenArray(input) {
   var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';

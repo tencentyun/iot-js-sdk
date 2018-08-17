@@ -73,8 +73,9 @@ new SDK({
 
 ### callYunApi(options)
 
-* `options.Action` 云方法名
-* `options.ActionParams` 方法对应的参数
+* `options.Action` string 云方法名
+* `options.ActionParams` object 方法对应的参数
+* `options.WithAccessToken` boolean 默认`true`。参考.bindAccessToken方法 
 
 `Version` 默认为 `2018-01-23`
 
@@ -82,7 +83,7 @@ new SDK({
 
 ### bindAccessToken(AccessToken)
 
-登录之后，调用这个接口绑定 AccessToken。这样在调用云api时，就不用手动传 AccessToken 参数了。
+登录之后，调用这个接口绑定 AccessToken。这样在调用云api任何接口时，都会自动传 AccessToken 参数。如果需要暂时屏蔽这个特性，则在 `callYunApi` 时，传入 `options.WithAccessToken=false`
 
 登录方式有多种，请参照 API 文档中的登录部分，并通过 `callYunApi` 进行登录。
 

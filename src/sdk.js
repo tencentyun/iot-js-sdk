@@ -37,9 +37,10 @@ class Sdk {
     const ActionParams = flattenArray(options.ActionParams)
     const Version = options.Version;
     const Region = options.Region
+    const WithAccessToken = options.WithAccessToken === void 0 ? true : options.WithAccessToken;
 
     // AccessToken 的默认值逻辑
-    if (!ActionParams.AccessToken && self.AccessToken) {
+    if (!ActionParams.AccessToken && self.AccessToken && WithAccessToken) {
       ActionParams.AccessToken = self.AccessToken
     }
 
