@@ -102,6 +102,10 @@ sdk 会在以下两种情况下自动绑定 websocket 与设备推送的映射�
 
 接收服务器推送的各种消息，通过 action 来标记不同消息类型。
 
+目前已有的action：
+
+1. `DeviceChange` 设备上下线状态发生改变(`type=='upAndDown'`)。或设备数据发生改变(`type=='dataChange'`)。这时应用应主动刷新设备状态。
+
 
 #### action: 'DeviceChange'
 
