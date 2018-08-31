@@ -1,6 +1,6 @@
 {
   "name": "tencent-iot-js-sdk",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "tencent cloud iot js sdk",
   "main": "src/sdk.js",
   "browser": "./dist/iot_sdk.browser.js",
