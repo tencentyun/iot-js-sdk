@@ -64,7 +64,7 @@ class Sdk {
     })
   }
 
-  unbindAccessToken(AccessToken) {
+  unbindAccessToken() {
     const self = this;
     self.AccessToken = null
   }
