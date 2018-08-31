@@ -3484,7 +3484,7 @@ function () {
     }
   }, {
     key: "unbindAccessToken",
-    value: function unbindAccessToken(AccessToken) {
+    value: function unbindAccessToken() {
       var self = this;
       self.AccessToken = null;
     } // activePush是个幂等操作，多次调用也没事。
