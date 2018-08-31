@@ -3481,6 +3481,12 @@ function () {
       self.activePush().catch(function (err) {
         debug("activePush activePush ".concat(err));
       });
+    }
+  }, {
+    key: "unbindAccessToken",
+    value: function unbindAccessToken(AccessToken) {
+      var self = this;
+      self.AccessToken = null;
     } // activePush是个幂等操作，多次调用也没事。
 
   }, {
