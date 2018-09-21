@@ -1330,7 +1330,7 @@ function (_EventEmitter) {
     _classCallCheck(this, IotWebSocket);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(IotWebSocket).call(this));
-    _this.url = url || 'wss://iot-ws.tencentcs.com/';
+    _this.url = url || 'wss://iotsuite-ws.qcloudsmartiot.com/';
     _this.options = options || {}; // 心跳的间隔时间
 
     _this.hearbeatInterval = _this.options.hearbeatInterval || 20 * 1000;
